@@ -1,0 +1,10 @@
+{
+  "name": "rescueplan-local",
+  "private": true,
+  "description": "Optional frontend DOM tests; the app needs no JavaScript build tools.",
+  "engines": { "node": ">=22.12.0" },
+  "devDependencies": {
+    "jsdom": "30.1.2"
+  }
+}
+
