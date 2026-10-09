@@ -88,7 +88,6 @@ def create_app(settings=None, client=None):
                     "Too many failed sign-ins. Try again in five minutes.",
                 )
 
-            # Keep the local limiter bounded. Use a shared limiter when scaling.
             if len(failures) > 5000:
                 for old in list(failures):
                     if not failures[old] or failures[old][-1] <= now - 300:
@@ -98,7 +97,6 @@ def create_app(settings=None, client=None):
 
     @app.middleware("http")
     async def headers(request, call_next):
-        # Limit JSON uploads without reading or logging passwords/report bodies.
         length = request.headers.get("content-length", "0")
 
         if not length.isdigit() or int(length) > 32768:
@@ -110,7 +108,9 @@ def create_app(settings=None, client=None):
         response = await call_next(request)
 
         response.headers["X-Content-Type-Options"] = "nosniff"
-        response.headers["Referrer-Policy"] = "same-origin"
+        response.headers["Referrer-Policy"] = (
+            "strict-origin-when-cross-origin"
+        )
         response.headers["X-Frame-Options"] = "DENY"
 
         if request.url.path.startswith("/api/"):
@@ -119,10 +119,12 @@ def create_app(settings=None, client=None):
         if request.url.path not in ("/docs", "/redoc"):
             response.headers["Content-Security-Policy"] = (
                 "default-src 'self'; "
-                "script-src 'self'; "
-                "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+                "script-src 'self' https://unpkg.com; "
+                "style-src 'self' 'unsafe-inline' "
+                "https://fonts.googleapis.com https://unpkg.com; "
                 "font-src 'self' https://fonts.gstatic.com; "
-                "img-src 'self' data:; "
+                "img-src 'self' data: "
+                "https://tile.openstreetmap.org https://unpkg.com; "
                 "connect-src 'self'; "
                 "object-src 'none'; "
                 "base-uri 'self'; "
@@ -145,7 +147,6 @@ def create_app(settings=None, client=None):
 
     @app.exception_handler(RequestValidationError)
     async def validation_error(request, error):
-        # Return useful field errors without echoing the submitted password.
         messages = [
             f"{'.'.join(str(p) for p in e['loc'] if p != 'body')}: {e['msg']}"
             for e in error.errors()
@@ -200,7 +201,6 @@ def create_app(settings=None, client=None):
                 "Email or password is incorrect for this portal.",
             )
 
-        # Revoke a previous browser session when explicitly switching accounts.
         old = request.cookies.get(COOKIE)
 
         if old:
@@ -331,8 +331,6 @@ def create_app(settings=None, client=None):
     def mark_read(actor=Depends(authenticate)):
         return service.read_notifications(actor)
 
-    # API routes are registered before the static mount; .env/backend files are
-    # outside frontend/ and cannot be downloaded through the static server.
     app.mount(
         "/",
         StaticFiles(directory=PROJECT_ROOT / "frontend", html=True),

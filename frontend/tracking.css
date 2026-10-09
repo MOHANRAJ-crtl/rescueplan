@@ -1,0 +1,99 @@
+.tracking-panel {
+  margin: 18px 0;
+  border: 1px solid var(--line, #ded5cd);
+  border-radius: 16px;
+  background: var(--surface, #fff);
+  overflow: hidden;
+}
+
+.tracking-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+}
+
+.tracking-head h2 {
+  margin: 0 0 5px;
+}
+
+.tracking-head p,
+.tracking-help,
+#gps-sharing-status {
+  color: var(--muted, #756b68);
+  font-size: 13px;
+}
+
+.tracking-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 0 16px 16px;
+}
+
+.tracking-controls[hidden] {
+  display: none;
+}
+
+.tracking-map {
+  height: 360px;
+  width: 100%;
+  z-index: 0;
+}
+
+.tracking-help {
+  padding: 12px 16px;
+  margin: 0;
+}
+
+.gps-fill-button {
+  margin-top: 10px;
+  align-self: flex-start;
+}
+
+.gps-field-status {
+  display: block;
+  margin-top: 7px;
+  color: var(--muted, #756b68);
+}
+
+.gps-vehicle-pin {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 2px solid white;
+  border-radius: 50%;
+  color: white;
+  box-shadow: 0 2px 8px #0004;
+}
+
+.gps-vehicle-pin svg {
+  width: 21px;
+  height: 21px;
+}
+
+.gps-vehicle-pin.recent {
+  background: #1a8059;
+}
+
+.gps-vehicle-pin.last-known {
+  background: #777;
+}
+
+.tracking-panel .leaflet-popup-content p {
+  margin: 5px 0;
+}
+
+@media (max-width: 600px) {
+  .tracking-head {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .tracking-map {
+    height: 300px;
+  }
+}
